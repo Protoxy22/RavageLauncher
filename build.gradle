@@ -1,0 +1,50 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+    id 'java'
+    id 'application'
+}
+
+def lwjglClassifier = {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return "natives-windows"
+    } else if (Os.isFamily(Os.FAMILY_MAC)) {
+        return "natives-macos"
+    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
+        return "natives-linux"
+    } else {
+        throw new UnsupportedOperationException("This OS is not supported")
+    }
+}
+
+group 'net.ravage.launcher'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.lwjgl', name: 'lwjgl', version: '3.2.2'
+    runtimeOnly group: 'org.lwjgl', name: 'lwjgl', version: '3.2.2', classifier: lwjglClassifier()
+
+    implementation group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.2.2'
+    runtimeOnly group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.2.2', classifier: lwjglClassifier()
+
+
+    implementation group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.2.2'
+    runtimeOnly group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.2.2', classifier: lwjglClassifier()
+}
+
+application {
+    mainClassName = "net.ravage.launcher.Main"
+}
+
+def runDir = file("run")
+if (!runDir.exists() && !runDir.mkdirs()) {
+    throw new GradleException("Failed to create run directory")
+}
+
+run {
+    workingDir runDir
+}
